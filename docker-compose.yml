@@ -3,7 +3,7 @@ version: '3'
 services:
   nginx-proxy:
     image: jwilder/nginx-proxy
-    container_name: nginx-proxy
+    container_name: ${COMPOSE_PROJECT_NAME}_nginx-proxy
     ports:
       - "80:80"
     volumes:
@@ -15,7 +15,7 @@ services:
   #Services Front
   geoserver:
     image: geosolutionsit/geoserver:2.19.2
-    container_name: geoserver
+    container_name: ${COMPOSE_PROJECT_NAME}_geoserver
     environment:
       - GEOSERVER_DATA_DIR=${GEOSERVER_DATA_DIR}
       - GEOWEBCACHE_CACHE_DIR=${GEOWEBCACHE_CACHE_DIR}
@@ -34,11 +34,11 @@ services:
       - pgadmin
       - nginx-proxy
     networks:
-      - geoserver-network
+      - revproxy_apps
 
   mapstore:
     image: mapstore/mapstore2
-    container_name: mapstore
+    container_name: ${COMPOSE_PROJECT_NAME}_mapstore
     environment:
       - REACT_APP_GEONODE=true
       - PUBLIC_URL=https://mapstore.example.com/
@@ -51,11 +51,11 @@ services:
       - geoserver
       - nginx-proxy
     networks:
-      - geoserver-network
+      - revproxy_apps
 
   pgadmin:
     image: dpage/pgadmin4
-    container_name: pgadmin
+    container_name: ${COMPOSE_PROJECT_NAME}_pgadmin
     environment:
       - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
       - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
@@ -66,11 +66,11 @@ services:
     depends_on:
       - nginx-proxy
     networks:
-      - geoserver-network
+      - revproxy_apps
 
   filebrowser:
     image: filebrowser/filebrowser
-    container_name: filebrowser
+    container_name: ${COMPOSE_PROJECT_NAME}_filebrowser
     volumes:
       - geoserver_data:/srv
     environment:
@@ -86,12 +86,12 @@ services:
     depends_on:
       - nginx-proxy
     networks:
-      - geoserver-network
+      - revproxy_apps
   
   #Services Back
   postgres:
     image: postgres:13-alpine
-    container_name: postgres
+    container_name: ${COMPOSE_PROJECT_NAME}_postgres
     environment:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=mypassword
@@ -99,8 +99,15 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - geoserver-network
+      - revproxy_apps
+
+volumes:
+  geoserver_data:
+  mapstore_data:
+  postgres_data:
+
 
 networks:
-  geoserver-network:
-    driver: bridge
+  revproxy_apps:
+    external: 
+      name: ${APPS_NETWORK}
