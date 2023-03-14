@@ -1,7 +1,6 @@
 version: '3'
 
 services:
-
   nginx-proxy:
     image: jwilder/nginx-proxy
     container_name: nginx-proxy
@@ -13,23 +12,27 @@ services:
       - /usr/share/nginx/html
       - /var/run/docker.sock:/tmp/docker.sock:ro
 
-  whoami:
-    image: jwilder/whoami
-    expose:
-      - "8000"
-    environment:
-      - VIRTUAL_HOST=whoami.local
-      - VIRTUAL_PORT=8000
-
+  #Services Front
   geoserver:
     image: geosolutionsit/geoserver:2.19.2
     container_name: geoserver
     environment:
-      - VIRTUAL_HOST=geoserver.example.com
+      - GEOSERVER_DATA_DIR=${GEOSERVER_DATA_DIR}
+      - GEOWEBCACHE_CACHE_DIR=${GEOWEBCACHE_CACHE_DIR}
+      - GEOSERVER_ADMIN_PASSWORD=${GEOSERVER_ADMIN_PASSWORD}
+      - GEOSERVER_ADMIN_USER=${GEOSERVER_ADMIN_USER}
+      - INITIAL_MEMORY=${INITIAL_MEMORY}
+      - MAXIMUM_MEMORY=${MAXIMUM_MEMORY}
+      - VIRTUAL_HOST=$(VIRTUAL_HOST)
+      - VIRTUAL_PORT=8080
+    expose:
+      - "8080"
     volumes:
-      - ./geoserver_data:/opt/geoserver/data_dir
+      - geoserver_data:/opt/geoserver/data_dir
     depends_on:
       - postgres
+      - pgadmin
+      - nginx-proxy
     networks:
       - geoserver-network
 
@@ -40,14 +43,52 @@ services:
       - REACT_APP_GEONODE=true
       - PUBLIC_URL=https://mapstore.example.com/
       - GEOSERVER_URL=https://geoserver.example.com/geoserver
-      - VIRTUAL_HOST=mapstore.example.com
+      - VIRTUAL_HOST=$(VIRTUAL_HOST)
+      - VIRTUAL_PORT=8080
     volumes:
-      - ./mapstore_data:/usr/share/nginx/html
+      - mapstore_data:/usr/share/nginx/html
     depends_on:
       - geoserver
+      - nginx-proxy
     networks:
       - geoserver-network
 
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
+      - VIRTUAL_HOST=$(VIRTUAL_HOST)
+      - VIRTUAL_PORT=80
+    expose:
+      - "80"
+    depends_on:
+      - nginx-proxy
+    networks:
+      - geoserver-network
+
+  filebrowser:
+    image: filebrowser/filebrowser
+    container_name: filebrowser
+    volumes:
+      - geoserver_data:/srv
+    environment:
+      # Config du COTS
+      - FILEBROWSER_USER=admin
+      - FILEBROWSER_PASS=mypassword
+      - FILEBROWSER_PORT=8080
+      # Config pour nginx-proxy
+      - VIRTUAL_HOST=$(VIRTUAL_HOST)
+      - VIRTUAL_PORT=8080
+    expose:
+      - "8080"
+    depends_on:
+      - nginx-proxy
+    networks:
+      - geoserver-network
+  
+  #Services Back
   postgres:
     image: postgres:13-alpine
     container_name: postgres
@@ -56,30 +97,7 @@ services:
       - POSTGRES_PASSWORD=mypassword
       - POSTGRES_DB=gis
     volumes:
-      - ./postgres_data:/var/lib/postgresql/data
-    networks:
-      - geoserver-network
-
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: pgadmin
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=admin@example.com
-      - PGADMIN_DEFAULT_PASSWORD=mypassword
-    ports:
-      - "5050:80"
-    networks:
-      - geoserver-network
-
-  filebrowser:
-    image: filebrowser/filebrowser
-    container_name: filebrowser
-    volumes:
-      - ./filebrowser_data:/srv
-    environment:
-      - FILEBROWSER_USER=admin
-      - FILEBROWSER_PASS=mypassword
-      - FILEBROWSER_PORT=8080
+      - postgres_data:/var/lib/postgresql/data
     networks:
       - geoserver-network
 
