@@ -5,7 +5,7 @@ services:
     image: jwilder/nginx-proxy
     container_name: ${COMPOSE_PROJECT_NAME}_nginx-proxy
     ports:
-      - "80:80"
+      - "8080"
     volumes:
       - nginx_vhost:/etc/nginx/vhost.d
       - nginx_html:/usr/share/nginx/html
@@ -76,7 +76,6 @@ services:
       # Config du COTS
       - FILEBROWSER_USER=admin
       - FILEBROWSER_PASS=mypassword
-      - FILEBROWSER_PORT=8080
       # Config pour nginx-proxy
       - VIRTUAL_HOST=$(VIRTUAL_HOST)
       - VIRTUAL_PORT=8080
@@ -104,6 +103,8 @@ volumes:
   geoserver_data:
   mapstore_data:
   postgres_data:
+  nginx_vhost:
+  nginx_html:
 
 
 networks:
