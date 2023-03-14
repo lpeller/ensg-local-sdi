@@ -2,14 +2,19 @@ version: '3'
 
 services:
   nginx-proxy:
-    image: jwilder/nginx-proxy
+    build: ./nginx-proxy
     container_name: ${COMPOSE_PROJECT_NAME}_nginx-proxy
-    ports:
-      - "8080"
+    environment:
+      - VIRTUAL_HOST=${VIRTUAL_HOST}
+      - VIRTUAL_PORT=80
+    expose:
+      - "80"
     volumes:
       - nginx_vhost:/etc/nginx/vhost.d
       - nginx_html:/usr/share/nginx/html
       - /var/run/docker.sock:/tmp/docker.sock:ro
+    networks:
+      - revproxy_apps
 
   #Services Front
   geoserver:
@@ -22,7 +27,7 @@ services:
       - GEOSERVER_ADMIN_USER=${GEOSERVER_ADMIN_USER}
       - INITIAL_MEMORY=${INITIAL_MEMORY}
       - MAXIMUM_MEMORY=${MAXIMUM_MEMORY}
-      - VIRTUAL_HOST=$(VIRTUAL_HOST)
+      - VIRTUAL_HOST=${VIRTUAL_HOST}
       - VIRTUAL_PORT=8080
     expose:
       - "8080"
@@ -42,7 +47,7 @@ services:
       - REACT_APP_GEONODE=true
       - PUBLIC_URL=https://mapstore.example.com/
       - GEOSERVER_URL=https://geoserver.example.com/geoserver
-      - VIRTUAL_HOST=$(VIRTUAL_HOST)
+      - VIRTUAL_HOST=${VIRTUAL_HOST}
       - VIRTUAL_PORT=8080
     volumes:
       - mapstore_data:/usr/share/nginx/html
@@ -58,7 +63,7 @@ services:
     environment:
       - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
       - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
-      - VIRTUAL_HOST=$(VIRTUAL_HOST)
+      - VIRTUAL_HOST=${VIRTUAL_HOST}
       - VIRTUAL_PORT=80
     expose:
       - "80"
@@ -66,7 +71,7 @@ services:
       - nginx-proxy
     networks:
       - revproxy_apps
-
+  
   filebrowser:
     image: filebrowser/filebrowser
     container_name: ${COMPOSE_PROJECT_NAME}_filebrowser
@@ -76,11 +81,8 @@ services:
       # Config du COTS
       - FILEBROWSER_USER=admin
       - FILEBROWSER_PASS=mypassword
-      # Config pour nginx-proxy
-      - VIRTUAL_HOST=$(VIRTUAL_HOST)
-      - VIRTUAL_PORT=8080
     expose:
-      - "8080"
+      - "80"
     depends_on:
       - nginx-proxy
     networks:
