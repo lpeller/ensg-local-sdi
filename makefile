@@ -17,7 +17,7 @@ APP_BASEURL?=$(shell cat .env | grep VIRTUALHOST | sed 's/.*=//')
 .PHONY: help
 help:
 	@echo "=================================================================================="
-	@echo " ENSG : training SDI  "
+	@echo " ENSG : training SDI with Docker "
 	@echo "  https://github.com/lpeller/ensg-local-sdi dépot"
 	@echo " "
 	@echo " Few hints:"
@@ -33,27 +33,28 @@ build:
 
 .PHONY: up
 up: build
-	@bash echo "[INFO] Bringing up the stack"
+	@echo "[INFO] Bringing up the stack"
 	docker compose up -d --remove-orphans
-	@make urls
+	make postinstall
 
 .PHONY: hard-cleanup
 hard-cleanup:
-	@bash echo "[INFO] Bringing done the HTTPS automated proxy"
+	@echo "[INFO] Bringing done the HTTPS automated proxy"
 	docker compose -f docker-compose.yml down --remove-orphans
 	# Delete all hosted persistent data available in volumes
-	@bash echo "[INFO] Cleaning up static volumes"
+	@echo "[INFO] Cleaning up static volumes"
 	
 	TODO
 
-	@bash echo "[INFO] Cleaning up containers & images"
+	@echo "[INFO] Cleaning up containers & images"
 	docker system prune -a
 
-.PHONY: urls
-urls:
-	@bash echo "[WARNING] You should now activate projet host file with # make set-hosts"
-	@bash echo "[INFO] You may then access your project at the following URL:"
-	@bash echo "Portainer docker admin GUI:  https://portainer.${APP_BASEURL}/"
+.PHONY: postinstall
+postinstall:
+	@echo "[WARNING] You should now activate projet host file with # make set-hosts"
+	@echo "[INFO] You may then access your project at the following URL:"
+	@echo "Portainer docker admin GUI:  https://portainer.${APP_BASEURL}/"
+	@echo "Portainer docker admin GUI:  https://portainer.${APP_BASEURL}/"
 	@echo ""
 
 .PHONY: pull
