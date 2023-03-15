@@ -11,7 +11,6 @@ services:
       - "80"
     depends_on:
       - pgadmin
-      - filebrowser
     volumes:
       - nginx_vhosts:/etc/nginx/vhost.d
       - nginx_html:/usr/share/nginx/html
@@ -33,8 +32,6 @@ services:
       - MAXIMUM_MEMORY=${MAXIMUM_MEMORY}
       - STABLE_EXTENSIONS=${STABLE_EXTENSIONS}
       - COMMUNITY_EXTENSIONS=${COMMUNITY_EXTENSIONS}
-      - VIRTUAL_HOST=${VIRTUAL_HOST}
-      - VIRTUAL_PORT=8080
     expose:
       - "8080"
     volumes:
@@ -51,10 +48,8 @@ services:
     container_name: ${COMPOSE_PROJECT_NAME}_mapstore
     environment:
       - REACT_APP_GEONODE=true
-      - PUBLIC_URL=https://mapstore.example.com/
-      - GEOSERVER_URL=https://geoserver.example.com/geoserver
-      - VIRTUAL_HOST=${VIRTUAL_HOST}
-      - VIRTUAL_PORT=8080
+      - PUBLIC_URL=https://ensg-local-sdi.docker/mapstore
+      - GEOSERVER_URL=https://ensg-local-sdi.docker/geoserver
     expose:
       - "8080"
     volumes:
@@ -95,21 +90,6 @@ services:
       - postgis
     volumes:
       - pgadmin_data:/var/lib/pgadmin
-    networks:
-      - revproxy_apps
-
-  filebrowser:
-    image: filebrowser/filebrowser
-    container_name: ${COMPOSE_PROJECT_NAME}_filebrowser
-    volumes:
-      - geoserver_data:/srv
-      - ./.filebrowser.json:/.filebrowser.json
-    environment:
-      # Config du COTS 
-      - FILEBROWSER_USER=admin
-      - FILEBROWSER_PASS=mypassword
-    expose:
-      - "80"
     networks:
       - revproxy_apps
 

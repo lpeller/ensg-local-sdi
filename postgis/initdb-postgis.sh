@@ -31,10 +31,9 @@ done
         IF NOT EXISTS (
             SELECT                       -- SELECT list can stay empty for this
             FROM   pg_catalog.pg_roles
-            WHERE  rolname = '$POSTGRES_DB') THEN
-
-            CREATE ROLE $POSTGRES_DB LOGIN PASSWORD '$POSTGRES_DB_PASSWORD';
-            GRANT ALL PRIVILEGES ON DATABASE $POSTGRES_DB TO $POSTGRES_DB;
+            WHERE  rolename = 'geoserver') THEN
+            CREATE ROLE geoserver LOGIN PASSWORD 'geoserver';
+            GRANT ALL PRIVILEGES ON DATABASE geoserver TO geoserver;
         END IF;
         END
         $do$;
