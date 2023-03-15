@@ -1,3 +1,4 @@
-FROM jwilder/nginx-proxy:latest
+FROM nginx:alpine
 
-COPY ./aguillage.conf /etc/nginx/conf.d
+COPY ./aiguillage.conf /etc/nginx/conf.d
+COPY ./uploadsize.conf /etc/nginx/conf.d

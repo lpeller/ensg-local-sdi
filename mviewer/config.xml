@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+<metadata>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description rdf:about="http://www.ilrt.bristol.ac.uk/people/cmdjb/">
+<dc:title>SPGeo-22 Web Services</dc:title>
+<dc:creator>anonymous</dc:creator>
+<dc:publisher>anonymous</dc:publisher>
+<dc:subject>Démographie</dc:subject>
+<dc:subject>Environnement</dc:subject>
+<dc:subject>Cartes HO</dc:subject>
+<dc:subject>Cartes Météo</dc:subject>
+<dc:subject>Services de calculs</dc:subject>
+<dc:date>2019-10-26T08:59:49.139Z</dc:date>
+</rdf:Description>
+</rdf:RDF>
+</metadata>
+<application
+    title="SPGeo-22 Web Services"
+    logo=""
+    help=""
+    style="css/themes/chambray.css"
+    exportpng="true"
+    showhelp="false"
+    coordinates="true"
+    measuretools="true"
+    togglealllayersfromtheme="true"
+    hideprotectedlayers="true">
+</application>
+<mapoptions maxzoom="20" projection="EPSG:3857" center="-307903.74898791354,6141345.088741366" zoom="7" />
+<proxy url='../proxy/?url='/>
+<searchparameters bbox="false" localities="false" features="false" static="false"/>
+<baselayers style="gallery"> 
+    <baselayer visible="true" id="osm-bright" thumbgallery="img/osm-bright.png" title="OpenMapTiles" label="OSM Bright" type="OSM" url="https://maptiles.domokun.fr/styles/osm-bright/{z}/{x}/{y}.png" attribution="Map tiles by  &lt;a href=&quot;https://openmaptiles.com&quot;&gt;OpenMapTiles&lt;/a&gt;, under  &lt;a href=&quot;https://creativecommons.org/licenses/by/3.0/&quot;&gt;CC BY 3.0 &lt;/a&gt;"  ></baselayer> 
+    <baselayer visible="false" id="positron" thumbgallery="img/positron.png" title="OpenMapTiles" label="Positron" type="OSM" url="https://maptiles.domokun.fr/styles/positron/{z}/{x}/{y}.png" attribution="Map tiles by  &lt;a href=&quot;https://openmaptiles.com&quot;&gt;OpenMapTiles&lt;/a&gt;, under  &lt;a href=&quot;https://creativecommons.org/licenses/by/3.0/&quot;&gt;CC BY 3.0 &lt;/a&gt;"  ></baselayer> 
+    <baselayer visible="false" id="dark-matter" thumbgallery="img/dark-matter.png" title="OpenMapTiles" label="Dark Matter" type="OSM" url="https://maptiles.domokun.fr/styles/dark-matter/{z}/{x}/{y}.png" attribution="Map tiles by  &lt;a href=&quot;https://openmaptiles.com&quot;&gt;OpenMapTiles&lt;/a&gt;, under  &lt;a href=&quot;https://creativecommons.org/licenses/by/3.0/&quot;&gt;CC BY 3.0 &lt;/a&gt;"  ></baselayer> 
+    <baselayer visible="false" id="klokantech-basic" thumbgallery="img/klokantech-basic.png" title="OpenMapTiles" label="Klokantech Basic" type="OSM" url="https://maptiles.domokun.fr/styles/klokantech-basic/{z}/{x}/{y}.png" attribution="Map tiles by  &lt;a href=&quot;https://openmaptiles.com&quot;&gt;OpenMapTiles&lt;/a&gt;, under  &lt;a href=&quot;https://creativecommons.org/licenses/by/3.0/&quot;&gt;CC BY 3.0 &lt;/a&gt;"  ></baselayer> 
+    <!--    <baselayer visible="false" id="geoserver-wmts" thumbgallery="img/bzh.png" title="GéoServer local" label="Cartes OSM locales" type="WMTS" url="http://geonode.local/geoserver/gwc/service/wmts" layers="geonode%3ABretagne" format="image/png" fromcapacity="false" attribution="&lt;a href='http://geonode.local/'&lt;/a&gt;" style="" matrixset="EPSG%3A3857" maxzoom="20"></baselayer> -->
+</baselayers>
+<themes mini="false"> 
+    <theme id="theme-20191026104858" name="Démographie" collapsed="false" icon="fas fa-child"> 
+        <layer id="rp_struct_pop_geom" name="Part de la population selon la catégorie d'âge (%)" visible="true" tiled="false" searchable="false" queryable="true" 
+		expanded="true" attributefilter="true" attributefield="level" attributevalues="Commune,EPCI" attributelabel="Échelle" attributestylesync="true" 
+		attributefilterenabled="true" infopanel="bottom-panel" infoformat="application/vnd.ogc.gml" featurecount="5" 
+		style="geonode:pop6074___c51f9b70-f817-11e9-80b8-ab1397c47e00,geonode:rp_struct_pop_geom" stylesalias="60 - 74 ans,30 - 44 ans" 
+		url="http://geonode.local:80/geoserver/ows?service=WMS" attribution="Merci à l'équipe de GéoBretagne pour leur soutien sur ce thème." 
+		metadata="http://geonode.local:80/showmetadata/xsl/2" 
+		metadata-csw="http://geonode.local/catalogue/csw?outputschema=http%3A%2F%2Fwww.opengis.net%2Fcat%2Fcsw%2F2.0.2&service=CSW&request=GetRecordById&version=2.0.2&elementsetname=full&id=06734f4c-d66f-11e9-beb8-0242ac140003"> 
+		<template url="templates/territoire.pop.cat_age.mst"/>
+	</layer>
+    </theme> 
+    <theme id="theme-20191026105013" name="Environnement" collapsed="false" icon="fab fa-envira"> 
+    </theme> 
+    <theme id="theme-20191026105215" name="Cartes HO" collapsed="true" icon="fab fa-docker"> 
+    </theme> 
+    <theme id="theme-20191026105239" name="Cartes Météo" collapsed="true" icon="fas fa-umbrella"> 
+    </theme> 
+    <theme id="theme-20191026105503" name="Services de calculs" collapsed="true" icon="fas fa-terminal"> 
+    </theme> 
+</themes>
+</config>

@@ -3,22 +3,26 @@ version: '3'
 services:
   nginx-proxy:
     build: ./nginx-proxy
-    container_name: ${COMPOSE_PROJECT_NAME}_nginx-proxy
+    container_name: ${COMPOSE_PROJECT_NAME}_proxy
     environment:
       - VIRTUAL_HOST=${VIRTUAL_HOST}
       - VIRTUAL_PORT=80
     expose:
       - "80"
+    depends_on:
+      - pgadmin
+      - filebrowser
     volumes:
-      - nginx_vhost:/etc/nginx/vhost.d
+      - nginx_vhosts:/etc/nginx/vhost.d
       - nginx_html:/usr/share/nginx/html
       - /var/run/docker.sock:/tmp/docker.sock:ro
     networks:
       - revproxy_apps
 
-  #Services Front
+  #
+  # Services FRONT
   geoserver:
-    image: geosolutionsit/geoserver:2.19.2
+    image: kartoza/geoserver:2.19.2
     container_name: ${COMPOSE_PROJECT_NAME}_geoserver
     environment:
       - GEOSERVER_DATA_DIR=${GEOSERVER_DATA_DIR}
@@ -27,6 +31,8 @@ services:
       - GEOSERVER_ADMIN_USER=${GEOSERVER_ADMIN_USER}
       - INITIAL_MEMORY=${INITIAL_MEMORY}
       - MAXIMUM_MEMORY=${MAXIMUM_MEMORY}
+      - STABLE_EXTENSIONS=${STABLE_EXTENSIONS}
+      - COMMUNITY_EXTENSIONS=${COMMUNITY_EXTENSIONS}
       - VIRTUAL_HOST=${VIRTUAL_HOST}
       - VIRTUAL_PORT=8080
     expose:
@@ -34,7 +40,7 @@ services:
     volumes:
       - geoserver_data:/opt/geoserver/data_dir
     depends_on:
-      - postgres
+      - postgis
       - pgadmin
       - nginx-proxy
     networks:
@@ -49,6 +55,8 @@ services:
       - GEOSERVER_URL=https://geoserver.example.com/geoserver
       - VIRTUAL_HOST=${VIRTUAL_HOST}
       - VIRTUAL_PORT=8080
+    expose:
+      - "8080"
     volumes:
       - mapstore_data:/usr/share/nginx/html
     depends_on:
@@ -57,57 +65,87 @@ services:
     networks:
       - revproxy_apps
 
+  #
+  #      - Front page : mViewer
+  mviewer:
+    build: ./mviewer
+    container_name: ${COMPOSE_PROJECT_NAME}_mviewer
+    restart: unless-stopped
+    depends_on:
+      - nginx-proxy
+      - geoserver
+    expose:
+      - "80"
+    volumes:
+      - mviewer-base:/usr/share/nginx/html/
+    networks:
+      - revproxy_apps
+
   pgadmin:
-    image: dpage/pgadmin4
-    container_name: ${COMPOSE_PROJECT_NAME}_pgadmin
+    image: ${COMPOSE_PROJECT_NAME}_pgadmin4:latest
+    build:
+      context: ./pgadmin
     environment:
       - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
       - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
-      - VIRTUAL_HOST=${VIRTUAL_HOST}
-      - VIRTUAL_PORT=80
+    container_name: ${COMPOSE_PROJECT_NAME}_pgadmin
     expose:
       - "80"
     depends_on:
-      - nginx-proxy
+      - postgis
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
     networks:
       - revproxy_apps
-  
+
   filebrowser:
     image: filebrowser/filebrowser
     container_name: ${COMPOSE_PROJECT_NAME}_filebrowser
     volumes:
       - geoserver_data:/srv
+      - ./.filebrowser.json:/.filebrowser.json
     environment:
-      # Config du COTS
+      # Config du COTS 
       - FILEBROWSER_USER=admin
       - FILEBROWSER_PASS=mypassword
     expose:
       - "80"
-    depends_on:
-      - nginx-proxy
     networks:
       - revproxy_apps
-  
-  #Services Back
-  postgres:
-    image: postgres:13-alpine
-    container_name: ${COMPOSE_PROJECT_NAME}_postgres
+
+  #
+  # Services BACK
+
+  postgis:
+    image: ${COMPOSE_PROJECT_NAME}_postgis:latest
+    container_name: ${COMPOSE_PROJECT_NAME}_postgis
+    build:
+      context: ./postgis
+    env_file: 
+      - ./postgis/.env
+    restart: unless-stopped
+    stdin_open: true
+    expose:
+      - "5432" 
     environment:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=mypassword
       - POSTGRES_DB=gis
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgis_data:/var/lib/postgresql/data
+      - pgbackups:/pg_backups
     networks:
       - revproxy_apps
 
 volumes:
+  nginx_vhosts:
+  nginx_html:
   geoserver_data:
   mapstore_data:
-  postgres_data:
-  nginx_vhost:
-  nginx_html:
-
+  postgis_data:
+  pgadmin_data:
+  pgbackups:
+  mviewer-base:
 
 networks:
   revproxy_apps:
