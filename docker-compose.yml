@@ -60,8 +60,7 @@ services:
     networks:
       - revproxy_apps
 
-  #
-  #      - Front page : mViewer
+  
   mviewer:
     build: ./mviewer
     container_name: ${COMPOSE_PROJECT_NAME}_mviewer
@@ -121,6 +120,9 @@ volumes:
   pgadmin_data:
   pgbackups:
   mviewer-base:
+  qgis_data:
+  qgis_plugins:
+  qgis_project:
 
 networks:
   revproxy_apps:
