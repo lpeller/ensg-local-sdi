@@ -32,24 +32,32 @@ services:
       - MAXIMUM_MEMORY=${MAXIMUM_MEMORY}
       - STABLE_EXTENSIONS=${STABLE_EXTENSIONS}
       - COMMUNITY_EXTENSIONS=${COMMUNITY_EXTENSIONS}
+      - SAMPLE_DATA=true
+      - TOMCAT_EXTRAS=false
     expose:
       - "8080"
     volumes:
       - geoserver_data:/opt/geoserver/data_dir
+      - geoserver_fonts:/opt/fonts
     depends_on:
       - postgis
-      - pgadmin
       - nginx-proxy
     networks:
       - revproxy_apps
 
   mapstore:
-    image: mapstore/mapstore2
+    image: geosolutionsit/mapstore2
     container_name: ${COMPOSE_PROJECT_NAME}_mapstore
     environment:
-      - REACT_APP_GEONODE=true
       - PUBLIC_URL=https://ensg-local-sdi.docker/mapstore
       - GEOSERVER_URL=https://ensg-local-sdi.docker/geoserver
+      - GEOSERVER_WORKSPACE=my_geoserver
+      - DATA_DIR=/mapstore/data
+      - PUBLIC_URL=http://localhost:8080
+      - OSM_LAYER_URL=http://osm_tiles/osm_tiles/{z}/{x}/{y}.png
+      - OSM_LAYER_NAME=OpenStreetMap
+      - OSM_LAYER_ATTRIBUTION=© OpenStreetMap contributors
+      - OSM_LAYER_MAX_ZOOM=19
     expose:
       - "8080"
     volumes:
@@ -60,7 +68,9 @@ services:
     networks:
       - revproxy_apps
 
-  
+
+  #
+  #      - Front page : mViewer
   mviewer:
     build: ./mviewer
     container_name: ${COMPOSE_PROJECT_NAME}_mviewer
@@ -120,9 +130,7 @@ volumes:
   pgadmin_data:
   pgbackups:
   mviewer-base:
-  qgis_data:
-  qgis_plugins:
-  qgis_project:
+  geoserver_fonts:
 
 networks:
   revproxy_apps:
